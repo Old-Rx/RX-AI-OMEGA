@@ -50,8 +50,9 @@ class OpenAIResponsesProvider(Provider):
         if response.is_error:
             raise ProviderError(f"OpenAI request failed with HTTP {response.status_code}")
         data = response.json()
-        if isinstance(data.get("output_text"), str):
-            return data["output_text"]
+        output_text = data.get("output_text")
+        if isinstance(output_text, str):
+            return output_text
         texts = [
             item.get("text", "")
             for output in data.get("output", [])

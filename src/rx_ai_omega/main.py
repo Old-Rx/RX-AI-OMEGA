@@ -1,6 +1,7 @@
 import logging
 import time
 import uuid
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -28,7 +29,7 @@ def create_app() -> FastAPI:
     configure_logging(settings.log_level)
 
     @asynccontextmanager
-    async def lifespan(_app: FastAPI):
+    async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         if settings.auto_create_schema:
             Base.metadata.create_all(engine)
         with SessionLocal() as db:
@@ -62,7 +63,8 @@ def create_app() -> FastAPI:
         except Exception:
             logger.exception("Unhandled request error", extra={"request_id": request_id})
             response = JSONResponse(status_code=500, content={"detail": "Internal server error"})
-        path = request.scope.get("route").path if request.scope.get("route") else request.url.path
+        route_path = getattr(request.scope.get("route"), "path", None)
+        path = route_path if isinstance(route_path, str) else request.url.path
         REQUESTS.labels(request.method, path, response.status_code).inc()
         LATENCY.labels(request.method, path).observe(time.perf_counter() - started)
         response.headers["X-Request-ID"] = request_id
