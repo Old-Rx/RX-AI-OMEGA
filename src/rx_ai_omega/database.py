@@ -14,14 +14,20 @@ class Base(DeclarativeBase):
 
 def build_engine(settings: Settings) -> Engine:
     settings.ensure_local_directories()
-    kwargs = {"connect_args": {"check_same_thread": False}} if settings.database_url.startswith("sqlite") else {}
+    kwargs = (
+        {"connect_args": {"check_same_thread": False}}
+        if settings.database_url.startswith("sqlite")
+        else {}
+    )
     engine = create_engine(settings.database_url, pool_pre_ping=True, **kwargs)
     if settings.database_url.startswith("sqlite"):
+
         @event.listens_for(engine, "connect")
         def set_sqlite_pragma(dbapi_connection: Any, _connection_record: Any) -> None:
             cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
+
     return engine
 
 

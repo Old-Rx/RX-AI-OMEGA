@@ -1,6 +1,6 @@
-import enum
 import uuid
 from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import JSON, Boolean, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
@@ -17,13 +17,13 @@ def utcnow() -> datetime:
     return datetime.now(UTC)
 
 
-class Role(str, enum.Enum):
+class Role(StrEnum):
     viewer = "viewer"
     operator = "operator"
     admin = "admin"
 
 
-class MissionStatus(str, enum.Enum):
+class MissionStatus(StrEnum):
     draft = "draft"
     queued = "queued"
     running = "running"
@@ -33,7 +33,7 @@ class MissionStatus(str, enum.Enum):
     rejected = "rejected"
 
 
-class StepStatus(str, enum.Enum):
+class StepStatus(StrEnum):
     pending = "pending"
     running = "running"
     waiting_approval = "waiting_approval"
@@ -42,7 +42,7 @@ class StepStatus(str, enum.Enum):
     rejected = "rejected"
 
 
-class ApprovalStatus(str, enum.Enum):
+class ApprovalStatus(StrEnum):
     pending = "pending"
     approved = "approved"
     rejected = "rejected"
@@ -73,18 +73,26 @@ class Mission(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     title: Mapped[str] = mapped_column(String(200))
     objective: Mapped[str] = mapped_column(Text)
-    status: Mapped[MissionStatus] = mapped_column(Enum(MissionStatus), default=MissionStatus.draft, index=True)
+    status: Mapped[MissionStatus] = mapped_column(
+        Enum(MissionStatus), default=MissionStatus.draft, index=True
+    )
     created_by_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
-    steps: Mapped[list["WorkflowStep"]] = relationship(back_populates="mission", cascade="all, delete-orphan", order_by="WorkflowStep.position")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+    steps: Mapped[list["WorkflowStep"]] = relationship(
+        back_populates="mission", cascade="all, delete-orphan", order_by="WorkflowStep.position"
+    )
 
 
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
     __table_args__ = (UniqueConstraint("mission_id", "key", name="uq_step_mission_key"),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    mission_id: Mapped[str] = mapped_column(ForeignKey("missions.id", ondelete="CASCADE"), index=True)
+    mission_id: Mapped[str] = mapped_column(
+        ForeignKey("missions.id", ondelete="CASCADE"), index=True
+    )
     key: Mapped[str] = mapped_column(String(80))
     position: Mapped[int]
     agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"))
@@ -104,9 +112,15 @@ class WorkflowStep(Base):
 class Approval(Base):
     __tablename__ = "approvals"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    mission_id: Mapped[str] = mapped_column(ForeignKey("missions.id", ondelete="CASCADE"), index=True)
-    step_id: Mapped[str] = mapped_column(ForeignKey("workflow_steps.id", ondelete="CASCADE"), unique=True)
-    status: Mapped[ApprovalStatus] = mapped_column(Enum(ApprovalStatus), default=ApprovalStatus.pending)
+    mission_id: Mapped[str] = mapped_column(
+        ForeignKey("missions.id", ondelete="CASCADE"), index=True
+    )
+    step_id: Mapped[str] = mapped_column(
+        ForeignKey("workflow_steps.id", ondelete="CASCADE"), unique=True
+    )
+    status: Mapped[ApprovalStatus] = mapped_column(
+        Enum(ApprovalStatus), default=ApprovalStatus.pending
+    )
     reason: Mapped[str] = mapped_column(Text)
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -117,7 +131,9 @@ class Approval(Base):
 class Handoff(Base):
     __tablename__ = "handoffs"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    mission_id: Mapped[str] = mapped_column(ForeignKey("missions.id", ondelete="CASCADE"), index=True)
+    mission_id: Mapped[str] = mapped_column(
+        ForeignKey("missions.id", ondelete="CASCADE"), index=True
+    )
     from_step_id: Mapped[str] = mapped_column(ForeignKey("workflow_steps.id"))
     to_step_id: Mapped[str] = mapped_column(ForeignKey("workflow_steps.id"))
     payload: Mapped[dict[str, Any]] = mapped_column(JSON)

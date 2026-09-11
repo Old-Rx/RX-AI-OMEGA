@@ -1,7 +1,7 @@
 """Initial persistent orchestration schema."""
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "0001_initial"
 down_revision = None
@@ -10,11 +10,22 @@ depends_on = None
 
 role = sa.Enum("viewer", "operator", "admin", name="role")
 mission_status = sa.Enum(
-    "draft", "queued", "running", "waiting_approval", "completed", "failed", "rejected",
+    "draft",
+    "queued",
+    "running",
+    "waiting_approval",
+    "completed",
+    "failed",
+    "rejected",
     name="missionstatus",
 )
 step_status = sa.Enum(
-    "pending", "running", "waiting_approval", "completed", "failed", "rejected",
+    "pending",
+    "running",
+    "waiting_approval",
+    "completed",
+    "failed",
+    "rejected",
     name="stepstatus",
 )
 approval_status = sa.Enum("pending", "approved", "rejected", name="approvalstatus")
@@ -65,7 +76,12 @@ def upgrade() -> None:
     op.create_table(
         "workflow_steps",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("mission_id", sa.String(36), sa.ForeignKey("missions.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "mission_id",
+            sa.String(36),
+            sa.ForeignKey("missions.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("key", sa.String(80), nullable=False),
         sa.Column("position", sa.Integer(), nullable=False),
         sa.Column("agent_id", sa.String(36), sa.ForeignKey("agents.id"), nullable=False),
@@ -84,8 +100,18 @@ def upgrade() -> None:
     op.create_table(
         "approvals",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("mission_id", sa.String(36), sa.ForeignKey("missions.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("step_id", sa.String(36), sa.ForeignKey("workflow_steps.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "mission_id",
+            sa.String(36),
+            sa.ForeignKey("missions.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
+            "step_id",
+            sa.String(36),
+            sa.ForeignKey("workflow_steps.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("status", approval_status, nullable=False),
         sa.Column("reason", sa.Text(), nullable=False),
         sa.Column("requested_at", sa.DateTime(timezone=True), nullable=False),
@@ -98,8 +124,15 @@ def upgrade() -> None:
     op.create_table(
         "handoffs",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("mission_id", sa.String(36), sa.ForeignKey("missions.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("from_step_id", sa.String(36), sa.ForeignKey("workflow_steps.id"), nullable=False),
+        sa.Column(
+            "mission_id",
+            sa.String(36),
+            sa.ForeignKey("missions.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
+            "from_step_id", sa.String(36), sa.ForeignKey("workflow_steps.id"), nullable=False
+        ),
         sa.Column("to_step_id", sa.String(36), sa.ForeignKey("workflow_steps.id"), nullable=False),
         sa.Column("payload", sa.JSON(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -120,7 +153,16 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    for table in ("audit_events", "handoffs", "approvals", "workflow_steps", "documents", "missions", "agents", "users"):
+    for table in (
+        "audit_events",
+        "handoffs",
+        "approvals",
+        "workflow_steps",
+        "documents",
+        "missions",
+        "agents",
+        "users",
+    ):
         op.drop_table(table)
     approval_status.drop(op.get_bind(), checkfirst=True)
     step_status.drop(op.get_bind(), checkfirst=True)

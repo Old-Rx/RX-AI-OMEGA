@@ -65,7 +65,9 @@ class QdrantMemoryStore(MemoryStore):
 
     def __init__(self, settings: Settings, client: httpx.Client | None = None) -> None:
         headers = {"api-key": settings.qdrant_api_key} if settings.qdrant_api_key else {}
-        self.client = client or httpx.Client(base_url=settings.qdrant_url, headers=headers, timeout=30)
+        self.client = client or httpx.Client(
+            base_url=settings.qdrant_url, headers=headers, timeout=30
+        )
         self.client.put(
             f"/collections/{self.collection}",
             json={"vectors": {"size": VECTOR_SIZE, "distance": "Cosine"}},
@@ -75,11 +77,13 @@ class QdrantMemoryStore(MemoryStore):
         response = self.client.put(
             f"/collections/{self.collection}/points?wait=true",
             json={
-                "points": [{
-                    "id": document.id,
-                    "vector": embed(document.title + " " + document.content),
-                    "payload": {"title": document.title, "content": document.content[:2_000]},
-                }]
+                "points": [
+                    {
+                        "id": document.id,
+                        "vector": embed(document.title + " " + document.content),
+                        "payload": {"title": document.title, "content": document.content[:2_000]},
+                    }
+                ]
             },
         )
         response.raise_for_status()

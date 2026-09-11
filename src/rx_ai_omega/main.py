@@ -83,7 +83,9 @@ def create_app() -> FastAPI:
                 connection.execute(text("SELECT 1"))
             return {"status": "ready", "database": "ok"}
         except Exception:
-            return JSONResponse(status_code=503, content={"status": "not_ready", "database": "error"})
+            return JSONResponse(
+                status_code=503, content={"status": "not_ready", "database": "error"}
+            )
 
     @app.get("/metrics", include_in_schema=False)
     def metrics() -> Response:

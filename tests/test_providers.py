@@ -10,7 +10,9 @@ from rx_ai_omega.providers import (
     ProviderError,
 )
 
-REQUEST = GenerationRequest(instructions="Be useful", prompt="Summarize", context={"research": "facts"})
+REQUEST = GenerationRequest(
+    instructions="Be useful", prompt="Summarize", context={"research": "facts"}
+)
 
 
 def settings(**overrides: object) -> Settings:
@@ -23,7 +25,9 @@ def test_mock_provider_is_deterministic() -> None:
 
 
 def test_openai_responses_adapter_parses_output_text() -> None:
-    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={"output_text": "done"}))
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(200, json={"output_text": "done"})
+    )
     client = httpx.Client(transport=transport)
     provider = OpenAIResponsesProvider(settings(openai_api_key="secret"), client)
     assert provider.generate(REQUEST) == "done"
@@ -37,7 +41,9 @@ def test_ollama_adapter_parses_response() -> None:
 
 def test_provider_errors_do_not_expose_response_body() -> None:
     transport = httpx.MockTransport(lambda request: httpx.Response(401, text="sensitive"))
-    provider = OpenAIResponsesProvider(settings(openai_api_key="secret"), httpx.Client(transport=transport))
+    provider = OpenAIResponsesProvider(
+        settings(openai_api_key="secret"), httpx.Client(transport=transport)
+    )
     with pytest.raises(ProviderError, match="HTTP 401") as error:
         provider.generate(REQUEST)
     assert "sensitive" not in str(error.value)

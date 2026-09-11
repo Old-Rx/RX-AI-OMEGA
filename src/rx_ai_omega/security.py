@@ -1,5 +1,5 @@
-from datetime import UTC, datetime, timedelta
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, TypeAlias
 
 import jwt
@@ -8,7 +8,6 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .config import get_settings
@@ -73,6 +72,7 @@ def require_role(*allowed: Role) -> Callable[[User], User]:
         if user.role not in allowed:
             raise HTTPException(status_code=403, detail="Insufficient permissions")
         return user
+
     return dependency
 
 

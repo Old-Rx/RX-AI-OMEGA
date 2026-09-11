@@ -53,18 +53,25 @@ def test_authentication_and_rbac(client: TestClient, admin_headers: dict[str, st
         json={"username": "reader", "password": "long-reader-password", "role": "viewer"},
     )
     assert created.status_code == 201
-    login = client.post("/api/auth/token", data={"username": "reader", "password": "long-reader-password"})
+    login = client.post(
+        "/api/auth/token", data={"username": "reader", "password": "long-reader-password"}
+    )
     viewer = {"Authorization": f"Bearer {login.json()['access_token']}"}
     assert client.get("/api/agents", headers=viewer).status_code == 200
-    assert client.post(
-        "/api/agents",
-        headers=viewer,
-        json={"name": "Forbidden", "instructions": "No"},
-    ).status_code == 403
+    assert (
+        client.post(
+            "/api/agents",
+            headers=viewer,
+            json={"name": "Forbidden", "instructions": "No"},
+        ).status_code
+        == 403
+    )
     assert client.get("/api/users", headers=viewer).status_code == 403
 
 
-def test_dag_execution_handoff_persistence_and_audit(client: TestClient, admin_headers: dict[str, str]) -> None:
+def test_dag_execution_handoff_persistence_and_audit(
+    client: TestClient, admin_headers: dict[str, str]
+) -> None:
     agent_id = create_agent(client, admin_headers)
     mission_id = create_mission(client, admin_headers, agent_id)
     response = client.post(f"/api/missions/{mission_id}/run", headers=admin_headers)
@@ -81,7 +88,9 @@ def test_dag_execution_handoff_persistence_and_audit(client: TestClient, admin_h
 
 
 def test_approval_and_resume(client: TestClient, admin_headers: dict[str, str]) -> None:
-    mission_id = create_mission(client, admin_headers, create_agent(client, admin_headers), "high", "release")
+    mission_id = create_mission(
+        client, admin_headers, create_agent(client, admin_headers), "high", "release"
+    )
     client.post(f"/api/missions/{mission_id}/run", headers=admin_headers)
     mission = client.get(f"/api/missions/{mission_id}", headers=admin_headers).json()
     assert mission["status"] == "waiting_approval"
@@ -99,7 +108,9 @@ def test_approval_and_resume(client: TestClient, admin_headers: dict[str, str]) 
 
 
 def test_approval_rejection_is_terminal(client: TestClient, admin_headers: dict[str, str]) -> None:
-    mission_id = create_mission(client, admin_headers, create_agent(client, admin_headers), "medium")
+    mission_id = create_mission(
+        client, admin_headers, create_agent(client, admin_headers), "medium"
+    )
     client.post(f"/api/missions/{mission_id}/run", headers=admin_headers)
     approval = client.get("/api/approvals?status=pending", headers=admin_headers).json()[0]
     response = client.post(
@@ -113,11 +124,17 @@ def test_approval_rejection_is_terminal(client: TestClient, admin_headers: dict[
     assert mission["steps"][1]["status"] == "rejected"
 
 
-def test_document_ingestion_and_local_retrieval(client: TestClient, admin_headers: dict[str, str]) -> None:
+def test_document_ingestion_and_local_retrieval(
+    client: TestClient, admin_headers: dict[str, str]
+) -> None:
     response = client.post(
         "/api/documents",
         headers=admin_headers,
-        json={"title": "Runbook", "content": "Rotate credentials before a production release.", "metadata": {"team": "ops"}},
+        json={
+            "title": "Runbook",
+            "content": "Rotate credentials before a production release.",
+            "metadata": {"team": "ops"},
+        },
     )
     assert response.status_code == 201
     hits = client.get("/api/documents/search?q=rotate+credentials", headers=admin_headers).json()

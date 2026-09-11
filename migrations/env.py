@@ -3,9 +3,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from rx_ai_omega import models  # noqa: F401
 from rx_ai_omega.config import get_settings
 from rx_ai_omega.database import Base
-from rx_ai_omega import models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)

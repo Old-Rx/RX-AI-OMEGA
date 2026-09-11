@@ -28,7 +28,11 @@ class MissionExecutor:
 
     def execute(self, db: Session, mission_id: str) -> Mission:
         mission = self._load(db, mission_id)
-        if mission.status in {MissionStatus.completed, MissionStatus.failed, MissionStatus.rejected}:
+        if mission.status in {
+            MissionStatus.completed,
+            MissionStatus.failed,
+            MissionStatus.rejected,
+        }:
             return mission
         mission.status = MissionStatus.running
         record_audit(db, "mission.started", "mission", mission.id)
@@ -119,10 +123,7 @@ class MissionExecutor:
 
     def _run_step(self, db: Session, mission: Mission, step: WorkflowStep) -> None:
         dependencies = {candidate.key: candidate for candidate in mission.steps}
-        context = {
-            key: dependencies[key].output or ""
-            for key in step.depends_on
-        }
+        context = {key: dependencies[key].output or "" for key in step.depends_on}
         for source_key in step.depends_on:
             source = dependencies[source_key]
             db.add(

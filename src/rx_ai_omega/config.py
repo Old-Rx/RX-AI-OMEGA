@@ -44,7 +44,9 @@ class Settings(BaseSettings):
 
     def ensure_local_directories(self) -> None:
         if self.database_url.startswith("sqlite:///") and ":memory:" not in self.database_url:
-            Path(self.database_url.removeprefix("sqlite:///")).parent.mkdir(parents=True, exist_ok=True)
+            Path(self.database_url.removeprefix("sqlite:///")).parent.mkdir(
+                parents=True, exist_ok=True
+            )
 
     @property
     def cors_origin_list(self) -> list[str]:

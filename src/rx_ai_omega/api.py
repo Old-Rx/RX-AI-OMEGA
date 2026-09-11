@@ -40,7 +40,14 @@ from .schemas import (
     UserCreate,
     UserRead,
 )
-from .security import Admin, CurrentUser, Operator, create_access_token, hash_password, verify_password
+from .security import (
+    Admin,
+    CurrentUser,
+    Operator,
+    create_access_token,
+    hash_password,
+    verify_password,
+)
 
 router = APIRouter(prefix="/api")
 Db: TypeAlias = Annotated[Session, Depends(get_db)]
@@ -48,9 +55,7 @@ Db: TypeAlias = Annotated[Session, Depends(get_db)]
 
 def load_mission(db: Session, mission_id: str) -> Mission:
     mission = db.scalar(
-        select(Mission)
-        .where(Mission.id == mission_id)
-        .options(selectinload(Mission.steps))
+        select(Mission).where(Mission.id == mission_id).options(selectinload(Mission.steps))
     )
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
@@ -126,7 +131,9 @@ def create_agent(body: AgentCreate, db: Db, operator: Operator) -> Agent:
 
 @router.get("/missions", response_model=list[MissionRead])
 def list_missions(db: Db, _user: CurrentUser) -> list[Mission]:
-    statement = select(Mission).options(selectinload(Mission.steps)).order_by(desc(Mission.created_at))
+    statement = (
+        select(Mission).options(selectinload(Mission.steps)).order_by(desc(Mission.created_at))
+    )
     return list(db.scalars(statement).unique().all())
 
 
@@ -143,11 +150,15 @@ def create_mission(body: MissionCreate, db: Db, operator: Operator) -> Mission:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     agents = {
         agent.id: agent
-        for agent in db.scalars(select(Agent).where(Agent.id.in_({step.agent_id for step in body.steps}))).all()
+        for agent in db.scalars(
+            select(Agent).where(Agent.id.in_({step.agent_id for step in body.steps}))
+        ).all()
     }
     missing = {step.agent_id for step in body.steps} - set(agents)
     if missing:
-        raise HTTPException(status_code=422, detail=f"Unknown or unavailable agent IDs: {sorted(missing)}")
+        raise HTTPException(
+            status_code=422, detail=f"Unknown or unavailable agent IDs: {sorted(missing)}"
+        )
     if any(not agent.enabled for agent in agents.values()):
         raise HTTPException(status_code=422, detail="Disabled agents cannot be assigned")
     by_key = {step.key: step for step in body.steps}
@@ -177,7 +188,9 @@ def run_mission(
 ) -> Mission:
     mission = load_mission(db, mission_id)
     if mission.status not in {MissionStatus.draft, MissionStatus.queued}:
-        raise HTTPException(status_code=409, detail=f"Mission cannot run from status {mission.status.value}")
+        raise HTTPException(
+            status_code=409, detail=f"Mission cannot run from status {mission.status.value}"
+        )
     mission.status = MissionStatus.queued
     record_audit(db, "mission.queued", "mission", mission.id, operator.id)
     db.commit()
@@ -189,7 +202,7 @@ def run_mission(
 def list_approvals(
     db: Db,
     _user: CurrentUser,
-    approval_status: ApprovalStatus | None = Query(default=None, alias="status"),
+    approval_status: Annotated[ApprovalStatus | None, Query(alias="status")] = None,
 ) -> list[Approval]:
     statement = select(Approval).order_by(desc(Approval.requested_at))
     if approval_status:
@@ -300,4 +313,6 @@ def audit_history(
     _admin: Admin,
     limit: int = Query(default=100, ge=1, le=500),
 ) -> list[AuditEvent]:
-    return list(db.scalars(select(AuditEvent).order_by(desc(AuditEvent.created_at)).limit(limit)).all())
+    return list(
+        db.scalars(select(AuditEvent).order_by(desc(AuditEvent.created_at)).limit(limit)).all()
+    )
