@@ -1,0 +1,10 @@
+.git
+.github
+.venv
+work
+outputs
+source-v32
+frontend
+**/__pycache__
+*.sqlite3
+.env

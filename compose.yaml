@@ -1,0 +1,103 @@
+name: rx-ai-omega
+
+x-app-env: &app-env
+  RX_ENVIRONMENT: production
+  RX_DATABASE_URL: postgresql+psycopg://rx:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/rx_omega
+  RX_AUTH_SECRET: ${RX_AUTH_SECRET:?Set RX_AUTH_SECRET}
+  RX_BOOTSTRAP_ADMIN_USERNAME: ${RX_BOOTSTRAP_ADMIN_USERNAME:-admin}
+  RX_BOOTSTRAP_ADMIN_PASSWORD: ${RX_BOOTSTRAP_ADMIN_PASSWORD:?Set RX_BOOTSTRAP_ADMIN_PASSWORD}
+  RX_PROVIDER: ${RX_PROVIDER:-mock}
+  RX_OPENAI_API_KEY: ${RX_OPENAI_API_KEY:-}
+  RX_OPENAI_MODEL: ${RX_OPENAI_MODEL:-gpt-4.1-mini}
+  RX_OLLAMA_BASE_URL: ${RX_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+  RX_OLLAMA_MODEL: ${RX_OLLAMA_MODEL:-llama3.2}
+  RX_MEMORY_BACKEND: ${RX_MEMORY_BACKEND:-qdrant}
+  RX_QDRANT_URL: http://qdrant:6333
+  RX_QDRANT_API_KEY: ${RX_QDRANT_API_KEY:-}
+  RX_EXECUTION_BACKEND: redis
+  RX_REDIS_URL: redis://redis:6379/0
+  RX_CORS_ORIGINS: ${RX_CORS_ORIGINS:-http://localhost:3000}
+  RX_AUTO_CREATE_SCHEMA: "false"
+  RX_LOG_LEVEL: ${RX_LOG_LEVEL:-INFO}
+
+services:
+  api:
+    build: .
+    environment: *app-env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=2)"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 15s
+    restart: unless-stopped
+
+  worker:
+    build: .
+    entrypoint: ["rx-worker"]
+    environment: *app-env
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: rx_omega
+      POSTGRES_USER: rx
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rx -d rx_omega"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.2
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:

@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rx-ai-omega"
+version = "0.1.0"
+description = "Auditable, approval-aware multi-agent mission orchestration"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "RX-AI OMEGA contributors"}]
+dependencies = [
+  "alembic>=1.14,<2",
+  "argon2-cffi>=23.1,<26",
+  "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
+  "prometheus-client>=0.21,<1",
+  "pydantic-settings>=2.7,<3",
+  "PyJWT>=2.10,<3",
+  "python-multipart>=0.0.18,<1",
+  "sqlalchemy>=2.0,<3",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.2,<4"]
+redis = ["redis>=5.2,<7"]
+qdrant = ["qdrant-client>=1.13,<2"]
+dev = [
+  "coverage[toml]>=7.6,<8",
+  "mypy>=1.14,<2",
+  "pytest>=8.3,<9",
+  "pytest-cov>=6,<8",
+  "ruff>=0.9,<1",
+]
+
+[project.scripts]
+rx-api = "rx_ai_omega.main:run"
+rx-worker = "rx_ai_omega.worker:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rx_ai_omega"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+source = ["rx_ai_omega"]
+branch = true

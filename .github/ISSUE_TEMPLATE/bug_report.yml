@@ -1,0 +1,27 @@
+name: Bug report
+description: Report reproducible incorrect behavior
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes: { label: Description, description: What happened and what did you expect? }
+    validations: { required: true }
+  - type: textarea
+    id: reproduce
+    attributes: { label: Reproduction, description: Provide minimal safe steps without credentials or private data. }
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: Version or commit }
+    validations: { required: true }
+  - type: textarea
+    id: environment
+    attributes: { label: Environment, description: Database, queue, provider, browser, and deployment profile. }
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security check
+      options:
+        - label: This report does not disclose a vulnerability or secrets; I will use private reporting for those.
+          required: true

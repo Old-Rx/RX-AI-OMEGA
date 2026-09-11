@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a scoped improvement
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Problem, description: What operational need is unmet? }
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes: { label: Proposed outcome }
+    validations: { required: true }
+  - type: textarea
+    id: controls
+    attributes: { label: Governance and migration impact, description: Note permission, approval, audit, schema, or provider implications. }
