@@ -26,6 +26,11 @@ jobs:
           mypy src 2>&1 | tee mypy.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
+            awk -F: '/: error: / {
+              message=$0
+              sub(/^[^:]+:[^:]+: /, "", message)
+              printf "::error file=%s,line=%s::%s\n", $1, $2, message
+            }' mypy.log
             {
               echo "### mypy diagnostics"
               echo '```text'
