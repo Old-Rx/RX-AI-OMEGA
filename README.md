@@ -46,6 +46,20 @@ Open `http://localhost:5173`. The development bootstrap login from `.env.example
 
 For a quick API-only run, schema creation is enabled by default in development. Running `alembic upgrade head` is still recommended because production disables automatic schema creation.
 
+### Restricted-network Windows setup
+
+If the Windows machine cannot reach PyPI, run the **Build Windows offline bundle** workflow from the repository's Actions page. Download and extract the private release asset `rx-ai-omega-windows-py314-wheelhouse.zip`, then install entirely offline:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --no-index --find-links .\wheelhouse "rx-ai-omega[dev]"
+Copy-Item .env.example .env
+.\.venv\Scripts\alembic.exe upgrade head
+.\.venv\Scripts\rx-api.exe
+```
+
+The workflow also publishes a SHA-256 checksum beside the archive. Verify it before installation.
+
 ## Model and execution profiles
 
 | Concern | Local default | Production path |
