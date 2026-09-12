@@ -1,8 +1,15 @@
 # RX-AI OMEGA
 
+[![CI](https://github.com/Old-Rx/RX-AI-OMEGA/actions/workflows/ci.yml/badge.svg)](https://github.com/Old-Rx/RX-AI-OMEGA/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-4ad7ff.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?logo=react&logoColor=111)](frontend/)
+
 RX-AI OMEGA is an auditable, approval-aware mission orchestrator for teams that want agent automation without surrendering operational control. It turns a mission into a validated dependency graph, runs each step through a configured model provider, persists every transition, and pauses consequential actions for an administrator to approve or reject.
 
 This repository is a ground-up, working successor to the verified **v32 baseline scaffold**. It does **not** claim that the historical scaffold implemented enterprise capabilities; see [Provenance](#provenance) and [Release notes](RELEASE_NOTES.md).
+
+> **Project status:** active early-stage development (`0.1.x`). The control paths are tested, but this project has not received an independent security audit. Review the [known limits](RELEASE_NOTES.md#known-limits) and [deployment guide](docs/DEPLOYMENT.md) before any production use.
 
 ## What works
 
@@ -48,7 +55,7 @@ For a quick API-only run, schema creation is enabled by default in development. 
 
 ### Restricted-network Windows setup
 
-If the Windows machine cannot reach PyPI, run the **Build Windows offline bundle** workflow from the repository's Actions page. Download and extract the private release asset `rx-ai-omega-windows-py314-wheelhouse.zip`, then install entirely offline:
+If the Windows machine cannot reach PyPI, run the **Build Windows offline bundle** workflow from the repository's Actions page. Download and extract the release asset `rx-ai-omega-windows-py314-wheelhouse.zip`, then install entirely offline:
 
 ```powershell
 python -m venv .venv
@@ -95,6 +102,8 @@ Python dependencies use bounded compatible ranges in `pyproject.toml`; the front
 ## Deployment
 
 See [Deployment guide](docs/DEPLOYMENT.md) for Compose startup, secret requirements, service dependencies, TLS guidance, migrations, backup scope, and smoke checks. Docker is optional for local development.
+
+Planned work and the boundary between implemented and future capabilities are tracked in the [public roadmap](docs/ROADMAP.md).
 
 ## Provenance
 
