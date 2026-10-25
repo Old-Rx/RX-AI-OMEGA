@@ -1,9 +1,11 @@
 # RX-AI OMEGA
 
 [![CI](https://github.com/Old-Rx/RX-AI-OMEGA/actions/workflows/ci.yml/badge.svg)](https://github.com/Old-Rx/RX-AI-OMEGA/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Old-Rx/RX-AI-OMEGA?include_prereleases&color=ff436d)](https://github.com/Old-Rx/RX-AI-OMEGA/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4ad7ff.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?logo=react&logoColor=111)](frontend/)
+[![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-9666ff)](CHANGELOG.md)
 
 RX-AI OMEGA is an auditable, approval-aware mission orchestrator for teams that want agent automation without surrendering operational control. It turns a mission into a validated dependency graph, runs each step through a configured model provider, persists every transition, and pauses consequential actions for an administrator to approve or reject.
 
@@ -131,7 +133,7 @@ It contained eight small files (1,225 bytes total): a single unauthenticated exe
 
 ## Project policy
 
-Licensed under the MIT License. Security reports should follow [SECURITY.md](SECURITY.md); contributions follow [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+Licensed under the MIT License. Security reports should follow [SECURITY.md](SECURITY.md); contributions follow [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). Notable changes are documented in the [Changelog](CHANGELOG.md).
 
 ---
 

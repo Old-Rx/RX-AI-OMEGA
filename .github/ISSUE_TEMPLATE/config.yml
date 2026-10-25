@@ -1,0 +1,7 @@
+contact_links:
+  - name: Discussions
+    url: https://github.com/Old-Rx/RX-AI-OMEGA/discussions
+    about: Ask questions, share ideas, and discuss use cases in GitHub Discussions.
+  - name: Security Policy
+    url: https://github.com/Old-Rx/RX-AI-OMEGA/blob/main/SECURITY.md
+    about: Read the security policy before reporting vulnerabilities.
