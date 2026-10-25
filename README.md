@@ -11,6 +11,20 @@ This repository is a ground-up, working successor to the verified **v32 baseline
 
 > **Project status:** active early-stage development (`0.1.x`). The control paths are tested, but this project has not received an independent security audit. Review the [known limits](RELEASE_NOTES.md#known-limits) and [deployment guide](docs/DEPLOYMENT.md) before any production use.
 
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=python,fastapi,react,typescript,docker,postgres,redis,prometheus&theme=dark" alt="RX-AI OMEGA stack" />
+</div>
+
+## At a glance
+
+| Capability | What it means |
+|---|---|
+| **Orchestrate** | Compile a mission into a validated DAG and execute steps deterministically |
+| **Control** | Human approval gates pause consequential actions *before* they run |
+| **Audit** | Every control-plane and execution transition persisted to an append-only trail |
+| **Secure** | JWT bearer auth, Argon2 hashing, and viewer / operator / admin RBAC |
+| **Operate** | Prometheus metrics, structured JSON logs, health checks, Compose delivery |
+
 ## What works
 
 - FastAPI control plane with an explicit API → kernel → executor/runtime → governance flow.
@@ -118,3 +132,10 @@ It contained eight small files (1,225 bytes total): a single unauthenticated exe
 ## Project policy
 
 Licensed under the MIT License. Security reports should follow [SECURITY.md](SECURITY.md); contributions follow [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+<div align="center">
+  <a href="https://github.com/Old-Rx"><img src="https://img.shields.io/badge/More%20by%20Rx%20Development-4ad7ff?style=for-the-badge&logo=github&logoColor=white&labelColor=080b12" alt="More by Rx Development" /></a>
+  <img src="https://img.shields.io/badge/License-MIT-9666ff?style=for-the-badge&labelColor=080b12" alt="MIT License" />
+</div>
